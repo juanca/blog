@@ -72,3 +72,90 @@ TextField.defaultProps = {
 The purpose of these presentational components is to provide the source of truth for the DOM semantic structure and basic styling of commonly displayed data.
 In a growing team (of developers, designers, and product managers), a simple, shareable, and straightforward system of components is essential to agile iterations.
 As long as the properties interface is respected, system-wide changes can easily be carried out by anyone without any breaking risks.
+
+
+## Advanced Presentational Components: Decorations
+
+Let's suppose a new requirement: a currency symbol to the left of the input and some icon to the right of the input.
+
+A naive approach is a simple copy-and-paste of the original `TextField` source:
+
+```
+export default function PresentationalMoneyTextField (props) {
+  return (
+    <div>
+      <label>{props.labelText}</label>
+      <div>$$$</div>
+      <input onChange={props.onChange} value={props.value} />
+      <div>clear</div>
+    </div>
+  );
+}
+```
+
+For the purposes of the requirements, this is a complete solution (albiet a good one).
+Any improvements and changes to the `TextField` will need manual labor to propagate the same to the `MoneyTextField`.
+As long as someone is dedicating time to normalize all components, this is a doable approach.
+On the other hand, this is not a scalable approach -- each additional component just increases the onboarding process for any engineer, designer and product manager.
+
+Another naive approach is a configurable approach with the original `TextField` source:
+
+```
+export default function PresentationalTextField (props) {
+  return (
+    <div className={props.className}>
+      <label>{props.labelText}</label>
+      {props.showCurrency ? <div>$$$</div> : undefined}
+      <input onChange={props.onChange} value={props.value} />
+      {props.showClear ? <div>clear</div> : undefined}
+    </div>
+  );
+}
+```
+
+If the `MoneyTextField` is a defined component:
+
+```
+export default function MoneyTextField (props) {
+  return (
+    <TextField {...props} showCurrency=true showClear=true />
+  );
+}
+```
+
+Although this solves the linearly increasing amount of components problems, this approach introduces a new problem:
+an additional decoration implies another conditional.
+These conditionals have the potential to clutter source code.
+Cluttering the source code eventually leads to a higher mental overhead in determining the purpose of the original component.
+
+A better managed component approach is allowing components as `props` values:
+
+```
+export default function PresentationalTextField (props) {
+  return (
+    <div>
+      <label>{props.labelText}</label>
+      {props.prefix}
+      <input onChange={props.onChange} value={props.value} />
+      {props.postfix}
+    </div>
+  );
+}
+```
+
+If the `MoneyTextField` is a defined component:
+
+```
+export default function CompositionalMoneyTextField (props) {
+  return (
+    <TextField {...props}
+      prefix={<div>$</div>}
+      postfix={<div>clear</div>}
+    />
+  );
+}
+```
+
+The resulting `TextField` component is more versatile and straightforward.
+Although this does not solve the one-off problem, it does minimize the mental overhead for any new contributor.
+In addition, React allows for nested JSX components with the `children` property.
