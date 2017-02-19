@@ -252,3 +252,11 @@ export default function HigherOrderComponent(Component) {
 The factory can be used to remember any value as long as the generic component has an `onChange` and `value` properties.
 Utilizing this pattern reinforces the importance of designing a consistent and powerful `props` interface for components.
 However, if for any reason a component's `props` interface does not match with the usage of a higher order component, additional arguments can be utilized to customize the binding of the generic component.
+
+
+## General JavaScript Notes
+
+Although this article focuses on a React and Redux stack, these design principles can be applied to any powerful framework.
+In my personal experience, the distinct conceptual models (presentational, behavioral, and container components) can also be used in a [Backbone](http://backbonejs.org/) and [Marionette](http://marionettejs.com/) stack.
+The abstract idea of composing new components is a worthwhile and powerful technique.
+Whether composition is applied via arguments or wrappers, separating the concerns ultimately alleviates the classical growing pains of a codebase and facilitates the introduction to new contributors.
