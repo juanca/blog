@@ -159,3 +159,96 @@ export default function CompositionalMoneyTextField (props) {
 The resulting `TextField` component is more versatile and straightforward.
 Although this does not solve the one-off problem, it does minimize the mental overhead for any new contributor.
 In addition, React allows for nested JSX components with the `children` property.
+
+
+## Behavioral Component
+
+A behavioral component is known as **stateful** or **impure** because it is derived from the `props` passed in and some hidden variables within the component.
+Although it is not a presentation component, it is still considered **dumb** because it never directly accesses the store.
+In order to introduce `state` into a component, the component needs to inherit from the `React.Component` in order to take advantage of the [React component lifecycle](https://facebook.github.io/react/docs/react-component.html).
+This can be achieved by modifying the original presentational component or wrapping the original presentational component.
+Normally, behavioral components are perfect opportunities to implement **higher order components** which is the technique to wrap the original presentational component.
+
+Whenever a component needs to do more than just displaying data, a behavior component would suffice.
+
+Let’s consider a requirement to programmatically keep track of the value within the `<input>` in the `TextField` component.
+
+### Non-higher order component
+
+A React component has a `state` attached to its instance.
+This can be updated with the `setState` asynchronous setter instance method.
+In order to keep track of the input value, a simple `onChange` property can be attached to the `<input>` element.
+
+```
+export default class BehavioralTextField extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      value: '',
+    };
+
+    this.onChange = this.onChange.bind(this);
+  }
+
+  onChange(event) {
+    this.setState({ value: event.target.value });
+  }
+
+  render() {
+    return (
+      <div>
+        <label>{this.props.labelText}</label>
+        <input onChange={this.onChange} value={this.state.value} />
+      </div>
+    );
+  }
+}
+```
+
+For the purpose of the requirements, this is a complete solution.
+However, this approach forces the `TextField` to always manage its input value.
+Any changes to this flow requires a modification to the original source code of the `TextField` --
+whose purpose was to just display a label and an input element.
+
+
+### Higher order component
+
+A more versatile approach is decoupling the desired behavior from the desired presentation.
+The distinction to draw is a new component which can remember some value for any given component.
+A higher order component composes a new component with these criteria:
+
+1. Takes components as arguments (and any configurable options)
+2. Returns a new component with the desired behavior
+
+```
+export default function HigherOrderComponent(Component) {
+  return class RememberValueComponent extends React.Component {
+    constructor(props) {
+      super(props);
+
+      this.state = {
+        value: '',
+      };
+
+      this.onChange = this.onChange.bind(this);
+    }
+
+    onChange(event) {
+      this.setState({ value: event.target.value });
+    }
+
+    render() {
+      return <Component
+        {...this.props}
+        onChange={this.onChange}
+        value={this.state.value}
+      />;
+    }
+  }
+}
+```
+
+The factory can be used to remember any value as long as the generic component has an `onChange` and `value` properties.
+Utilizing this pattern reinforces the importance of designing a consistent and powerful `props` interface for components.
+However, if for any reason a component's `props` interface does not match with the usage of a higher order component, additional arguments can be utilized to customize the binding of the generic component.
