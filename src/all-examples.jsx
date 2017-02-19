@@ -32,7 +32,7 @@ export default function AllExamples () {
       </fieldset>
 
       <fieldset>
-        <legend>[Behavioral Higher Order Component] Money Text Field</legend>
+        <legend>[Behavioral Higher Order Component] Stateful Money Text Field</legend>
         <RememberedMoneyTextField />
       </fieldset>
     </div>
