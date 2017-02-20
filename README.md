@@ -260,3 +260,4 @@ Although this article focuses on a React and Redux stack, these design principle
 In my personal experience, the distinct conceptual models (presentational, behavioral, and container components) can also be used in a [Backbone](http://backbonejs.org/) and [Marionette](http://marionettejs.com/) stack.
 The abstract idea of composing new components is a worthwhile and powerful technique.
 Whether composition is applied via arguments or wrappers, separating the concerns ultimately alleviates the classical growing pains of a codebase and facilitates the introduction to new contributors.
+I would even go as far as to say these conceptual models are useful in any environment: backend systems can also benefit from such separation of concerns -- well-tested core classes, extensible core components, minimal memory usage, etc.
