@@ -1,7 +1,7 @@
 # React Component Architecture
 
 The purpose of this article is to introduce the different tools and testing strategies available in a React and Redux stack.
-One of the goals of this article is to develop a simple UI component that is simple, extensible, and useful through its properties interface.
+One of the goals of this article is to develop a UI component that is simple, extensible, and useful through its properties interface.
 A basic and widely used component within any application is a text field.
 This article will start with the presentational model of a text field;
 customize the display structure with additional buttons and icons;
@@ -186,11 +186,10 @@ In addition, React allows for nested JSX components with the `children` property
 ## Behavioral Component
 
 A behavioral component is known as **stateful** or **impure** because it is derived from the `props` passed in and some hidden variables within the component.
-Although it is not a presentation component, it is still considered **dumb** because it never directly accesses the store.
 In order to introduce `state` into a component, the component needs to inherit from the `React.Component` in order to take advantage of the [React component lifecycle](https://facebook.github.io/react/docs/react-component.html).
 This can be achieved by modifying the original presentational component or wrapping the original presentational component.
 Normally, behavioral components are perfect opportunities to implement **higher-order components**.
-A higher-order component is the technique of wrapping the original presentational component to produce a new component.
+A higher-order component is the technique of using a component to produce a new component.
 
 Whenever a component needs to do more than just displaying data, a behavior component would suffice.
 
