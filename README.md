@@ -7,25 +7,38 @@ This article will start with the presentational model of a text field;
 customize the display structure with additional buttons and icons;
 implement some behavioral states (e.g. keeping track of what has been typed);
 and, finally, populate the component from stored database values.
+User interfaces (and their implementations) have the potential to explode in complexity.
+This article hopes to illustrate different architectural techniques to contain logic into orthogonal systems in order to lower cognitive overhead.
 
 
 ### Useful terminology
 
-- **component** is either a function that returns JSX or a instance of `React.Component`.
-React provides a component for every known HTML node.
+- A **component** is either a function that returns JSX or an instance of `React.Component`.
+Note: React provides a component for every known HTML node.
 - **JSX** represents the hierarchy of components (which includes regular HTML DOM nodes).
 JavaScript code is injected into the markup with curly braces (i.e. `{someJavaScriptExpression}`).
-- **props** are the required and optional arguments to a component.
-- **propTypes** are the types of each argument to a component.
-- **store** is the storage manager which contains are all known data (either backend (model data) or frontend (UI states)).
-- **side effects** are any possible changes to different parts of the system.
+- The **props** expression is the key-value argument to a component.
+This object represents required and optional properties.
+- The **propTypes** validations are the types of each key-value pair in `props` to a component.
+These validations are only meant provide immediate feedback to a developer using a component (and all `propTypes` code is stripped out of the production version of a React application).
+- A **store** is a key-value object which contains all shared data (i.e. model data and UI states).
+- **Side effects** are any possible changes to different parts of the system.
+
+
+### Assumptions
+
+This article assumes common knowledge of JavaScript modules -- how to export a module, how to avoid exporting a private function, etc.
+
+Testing strategies will be abstract.
+
+Styling will be avoided for this article? Future article will discuss different strategies.
 
 
 ## Presentational Component
 
 A presentational component is known as **stateless** or **pure** because it is derived entirely from the `props` passed into it.
-Given this simplicity of this data flow, it is guaranteed that no other UI components will be affected by the inclusion of a presentational component.
-A presentational component is known as **functional** because it has no side effects and it always returns the same things given a set of props -- or more easily, it is quite literally just a JavaScript function instead of a `React.Component` subclass.
+Given the simplicity of this data flow, it is guaranteed that all other UI components will be unaffected by the inclusion of a presentational component.
+A presentational component is known as **functional** because it does not have any side effects and it always returns the same HTML markup given a set of props.
 
 Let's consider a text field component with two basic requirements:
 
@@ -37,7 +50,7 @@ In HTML markup, it is straightforward. In JSX markup, it is straightforward as w
 ```
 export default function PresentationalTextField (props) {
   return (
-    <div className={props.className}>
+    <div>
       <label>{props.labelText}</label>
       <input onChange={props.onChange} value={props.value} />
     </div>
@@ -46,10 +59,16 @@ export default function PresentationalTextField (props) {
 ```
 
 As with any HTML widget, it is good practice to simplify the DOM as much as possible.
-React imposes one requirement to components: one root element (e.g. `<div className={props.className}>`).
+React imposes one requirement to components: one root element (e.g. `<div>`).
 
-Given that these components are just used to display data, its properties interface (i.e. `prop` argument) needs to be carefully planned.
-`propTypes` is a pseudo type checking system to ensure developers do not misuse the component.
+The biggest responsibility of this component is displaying data.
+In the case of the `PresentationalTextField`, it displays some text as a label (`props.labelText`) and populates a value into the input (`props.value`).
+An additional property is exposed in order to make this component more useful: `props.onChange`.
+Whenever there are possible user-actions on a component, it tends to be a good idea to allow binding of an event handler.
+Given all the possible usages of user interfaces, it is crucial to develop a robust properties interface (i.e. `props`) which describes the desired usage of a component.
+
+
+In order to provide a robust `props` API, there is the `propTypes` system -- a pseudo-type checking system to avoid misuses of the component.
 A console warning is displayed in development whenever a type is violated.
 However, these are stripped from the codebase in a production environment.
 
@@ -60,7 +79,8 @@ TextField.propTypes = {
 };
 ```
 
-In addition, default values can be specified.
+
+In addition, default values can be specified for optional properties.
 This is more straightforward and less error-prone than defaulting the values in ternary-like expressions.
 
 ```
@@ -69,8 +89,9 @@ TextField.defaultProps = {
 };
 ```
 
-The purpose of these presentational components is to provide the source of truth for the DOM semantic structure and basic styling of commonly displayed data.
-In a growing team (of developers, designers, and product managers), a simple, shareable, and straightforward system of components is essential to agile iterations.
+
+The purpose of these presentational components is to provide the source of truth for the semantic DOM structure of commonly displayed data.
+In a growing team of contributors, a simple, shareable, and straightforward system of components is essential to getting work done.
 As long as the properties interface is respected, system-wide changes can easily be carried out by anyone without any breaking risks.
 
 
@@ -93,17 +114,17 @@ export default function PresentationalMoneyTextField (props) {
 }
 ```
 
-For the purposes of the requirements, this is a complete solution (albiet a good one).
+For the purposes of the requirements, this is a complete solution (albeit a good one).
 Any improvements and changes to the `TextField` will need manual labor to propagate the same to the `MoneyTextField`.
 As long as someone is dedicating time to normalize all components, this is a doable approach.
-On the other hand, this is not a scalable approach -- each additional component just increases the onboarding process for any engineer, designer and product manager.
+On the other hand, this is not a scalable approach -- each additional component just increases the on-boarding process for a contributor.
 
 Another naive approach is a configurable approach with the original `TextField` source:
 
 ```
 export default function PresentationalTextField (props) {
   return (
-    <div className={props.className}>
+    <div>
       <label>{props.labelText}</label>
       {props.showCurrency ? <div>$$$</div> : undefined}
       <input onChange={props.onChange} value={props.value} />
@@ -113,7 +134,7 @@ export default function PresentationalTextField (props) {
 }
 ```
 
-If the `MoneyTextField` is a defined component:
+If the `MoneyTextField` is a defined component then its usage will look like the following:
 
 ```
 export default function MoneyTextField (props) {
@@ -128,7 +149,8 @@ an additional decoration implies another conditional.
 These conditionals have the potential to clutter source code.
 Cluttering the source code eventually leads to a higher mental overhead in determining the purpose of the original component.
 
-A better managed component approach is allowing components as `props` values:
+An easier managed component approach is allowing nested components as `props` values.
+The following is a revised implementation of the original text field:
 
 ```
 export default function PresentationalTextField (props) {
@@ -143,7 +165,7 @@ export default function PresentationalTextField (props) {
 }
 ```
 
-If the `MoneyTextField` is a defined component:
+Then the `MoneyTextField` is the following defined component:
 
 ```
 export default function CompositionalMoneyTextField (props) {
@@ -167,13 +189,14 @@ A behavioral component is known as **stateful** or **impure** because it is deri
 Although it is not a presentation component, it is still considered **dumb** because it never directly accesses the store.
 In order to introduce `state` into a component, the component needs to inherit from the `React.Component` in order to take advantage of the [React component lifecycle](https://facebook.github.io/react/docs/react-component.html).
 This can be achieved by modifying the original presentational component or wrapping the original presentational component.
-Normally, behavioral components are perfect opportunities to implement **higher order components** which is the technique to wrap the original presentational component.
+Normally, behavioral components are perfect opportunities to implement **higher-order components**.
+A higher-order component is the technique of wrapping the original presentational component to produce a new component.
 
 Whenever a component needs to do more than just displaying data, a behavior component would suffice.
 
-Let’s consider a requirement to programmatically keep track of the value within the `<input>` in the `TextField` component.
+Let's consider a requirement to programmatically keep track of the value within the `<input>` in the `TextField` component.
 
-### Non-higher order component
+### Non-higher-order component
 
 A React component has a `state` attached to its instance.
 This can be updated with the `setState` asynchronous setter instance method.
@@ -207,6 +230,7 @@ export default class BehavioralTextField extends React.Component {
 ```
 
 For the purpose of the requirements, this is a complete solution.
+The component stores the input value in `this.state.value` and updates it on `change` events.
 However, this approach forces the `TextField` to always manage its input value.
 Any changes to this flow requires a modification to the original source code of the `TextField` --
 whose purpose was to just display a label and an input element.
@@ -249,8 +273,8 @@ export default function HigherOrderComponent(Component) {
 }
 ```
 
-The factory can be used to remember any value as long as the generic component has an `onChange` and `value` properties.
-Utilizing this pattern reinforces the importance of designing a consistent and powerful `props` interface for components.
+The factory can be used to remember any value as long as the supplied component has an `onChange` and `value` properties.
+Utilizing this pattern reinforces the importance of designing a consistent and robust `props` interface for components.
 However, if for any reason a component's `props` interface does not match with the usage of a higher order component, additional arguments can be utilized to customize the binding of the generic component.
 
 
