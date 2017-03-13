@@ -1,4 +1,4 @@
-# React + Redux Architecture
+# React Component Architecture
 
 The purpose of this article is to introduce the different tools and testing strategies available in a React and Redux stack.
 One of the goals of this article is to develop a simple UI component that is simple, extensible, and useful through its properties interface.
