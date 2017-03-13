@@ -38,7 +38,7 @@ Styling will be avoided for this article? Future article will discuss different 
 
 A presentational component is known as **stateless** or **pure** because it is derived entirely from the `props` passed into it.
 Given the simplicity of this data flow, it is guaranteed that all other UI components will be unaffected by the inclusion of a presentational component.
-A presentational component is known as **functional** because it does not have any side effects and it always returns the same HTML markup given a set of props.
+A presentational component is known as **functional** because it does not have any side effects and it always returns the same DOM markup given a set of props.
 
 Let's consider a text field component with two basic requirements:
 
@@ -93,6 +93,16 @@ TextField.defaultProps = {
 The purpose of these presentational components is to provide the source of truth for the semantic DOM structure of commonly displayed data.
 In a growing team of contributors, a simple, shareable, and straightforward system of components is essential to getting work done.
 As long as the properties interface is respected, system-wide changes can easily be carried out by anyone without any breaking risks.
+
+
+#### Testing
+
+Given the one-to-one mapping of `props` to DOM markup, testing a presentational component is straightforward.
+
+1. For an empty set of optional `props`, the component renders with the default markup.
+1. For a given set of optional `props`, the component renders with customized markup.
+1. For varying required `props`, the component renders with varying markup.
+1. Event handlers are invoked on simulated DOM events.
 
 
 ## Advanced Presentational Components: Decorations
@@ -183,6 +193,14 @@ Although this does not solve the one-off problem, it does minimize the mental ov
 In addition, React allows for nested JSX components with the `children` property.
 
 
+#### Testing
+
+Given the one-to-one mapping of `props` to DOM markup, testing a decorated presentational component is straightforward.
+
+1. Given a set of `props`, the component renders the presentational component (which is itself in this case).
+1. For each hardcoded `prop`, the component renders additional DOM markup.
+
+
 ## Behavioral Component
 
 A behavioral component is known as **stateful** or **impure** because it is derived from the `props` passed in and some hidden variables within the component.
@@ -235,6 +253,15 @@ Any changes to this flow requires a modification to the original source code of 
 whose purpose was to just display a label and an input element.
 
 
+#### Testing
+
+In addition to testing all presentational component responsibilities, state related tests are required a function of DOM output.
+
+1. For each state value, the component renders with a default value.
+1. For a given state value, the component renders with the given value.
+1. For each tracked state value, the component updates the state value via some event handler.
+
+
 ### Higher order component
 
 A more versatile approach is decoupling the desired behavior from the desired presentation.
@@ -275,6 +302,16 @@ export default function HigherOrderComponent(Component) {
 The factory can be used to remember any value as long as the supplied component has an `onChange` and `value` properties.
 Utilizing this pattern reinforces the importance of designing a consistent and robust `props` interface for components.
 However, if for any reason a component's `props` interface does not match with the usage of a higher order component, additional arguments can be utilized to customize the binding of the generic component.
+
+
+#### Testing
+
+Given one-to-one mapping of `this.state` to `Component` `props`, only related tests are required.
+For testing purposes, a generic component is utilized without imposing any additional logic.
+
+1. For each state value, the `Component` has specific default `props` values.
+1. For a given state value, the `Component` has with the given `props` values.
+1. For each tracked state value, the `Component` updates the state value via the given `props` event handler.
 
 
 ## General JavaScript Notes
