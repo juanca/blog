@@ -270,11 +270,11 @@ In addition to testing all presentational component responsibilities, state rela
 1. For each tracked state value, the component updates the state value via some event handler.
 
 
-### Higher order component
+### Higher-order component
 
 A more versatile approach is decoupling the desired behavior from the desired presentation.
 The distinction to draw is a new component which can remember some value for any given component.
-A higher order component composes a new component with these criteria:
+A higher-order component composes a new component with these criteria:
 
 1. Takes components as arguments (and any configurable options)
 2. Returns a new component with the desired behavior
@@ -309,7 +309,7 @@ export default function HigherOrderComponent(Component) {
 
 The factory can be used to remember any value as long as the supplied component has an `onChange` and `value` properties.
 Utilizing this pattern reinforces the importance of designing a consistent and robust `props` interface for components.
-However, if for any reason a component's `props` interface does not match with the usage of a higher order component, additional arguments can be utilized to customize the binding of the generic component.
+However, if for any reason a component's `props` interface does not match with the usage of a higher-order component, additional arguments can be utilized to customize the binding of the generic component.
 
 
 #### Testing
