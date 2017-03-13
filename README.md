@@ -95,6 +95,14 @@ In a growing team of contributors, a simple, shareable, and straightforward syst
 As long as the properties interface is respected, system-wide changes can easily be carried out by anyone without any breaking risks.
 
 
+#### Performance
+
+As with any programming framework, instantiating objects is slower as the object has more setup.
+Essentially, a pure component will only consist of markup.
+Thereby avoiding unnecessary React component lifecycle computations.
+These are analogous to writing it in pure JavaScript versus any other framework.
+
+
 #### Testing
 
 Given the one-to-one mapping of `props` to DOM markup, testing a presentational component is straightforward.
