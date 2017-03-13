@@ -309,6 +309,7 @@ export default function HigherOrderComponent(Component) {
 
 The factory can be used to remember any value as long as the supplied component has an `onChange` and `value` properties.
 Utilizing this pattern reinforces the importance of designing a consistent and robust `props` interface for components.
+A behavior higher-order component binds certain `props` to the internal state of the resulting component.
 However, if for any reason a component's `props` interface does not match with the usage of a higher-order component, additional arguments can be utilized to customize the binding of the generic component.
 
 
@@ -318,8 +319,34 @@ Given one-to-one mapping of `this.state` to `Component` `props`, only related te
 For testing purposes, a generic component is utilized without imposing any additional logic.
 
 1. For each state value, the `Component` has specific default `props` values.
-1. For a given state value, the `Component` has with the given `props` values.
+1. For a given state value, the `Component` has the given `props` values.
 1. For each tracked state value, the `Component` updates the state value via the given `props` event handler.
+
+
+## Container Components
+
+A redux container component is another example of a higher-order component:
+
+- The container component binds certain `props` to the state of the store.
+- The container component has access to the setter methods for the store (`dispatch`).
+
+
+In the previous examples, the presentational and behavioral components were self-contained.
+All of their DOM markup was driven by their `props` and internal state.
+A container component is driven by the store: it reads and writes to the store.
+The store is composed of data from the server and other container components.
+
+```
+```
+
+
+#### Testing
+
+Given the one-to-one mapping of the store state to the component `props`:
+
+1. For the default store state, the component has specific default `props` values.
+1. For a given store state, the component has the given `props` values.
+1. For each event handler (closed with `dispatch`), the component updates the store state via the given `props` event handler.
 
 
 ## General JavaScript Notes
