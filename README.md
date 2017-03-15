@@ -47,7 +47,7 @@ Let's consider a text field component with two basic requirements:
 
 In HTML markup, it is straightforward. In JSX markup, it is straightforward as well.
 
-```
+```javascript
 export default function PresentationalTextField (props) {
   return (
     <div>
@@ -72,7 +72,7 @@ In order to provide a robust `props` API, there is the `propTypes` system -- a p
 A console warning is displayed in development whenever a type is violated.
 However, these are stripped from the codebase in a production environment.
 
-```
+```javascript
 TextField.propTypes = {
   labelText: React.PropTypes.string,
   onInputChange: React.PropTypes.func.isRequired,
@@ -83,7 +83,7 @@ TextField.propTypes = {
 In addition, default values can be specified for optional properties.
 This is more straightforward and less error-prone than defaulting the values in ternary-like expressions.
 
-```
+```javascript
 TextField.defaultProps = {
   labelText: ‘Some default label’,
 };
@@ -119,7 +119,7 @@ Let's suppose a new requirement: a currency symbol to the left of the input and 
 
 A naive approach is a simple copy-and-paste of the original `TextField` source:
 
-```
+```javascript
 export default function PresentationalMoneyTextField (props) {
   return (
     <div>
@@ -139,7 +139,7 @@ On the other hand, this is not a scalable approach -- each additional component 
 
 Another naive approach is a configurable approach with the original `TextField` source:
 
-```
+```javascript
 export default function PresentationalTextField (props) {
   return (
     <div>
@@ -154,7 +154,7 @@ export default function PresentationalTextField (props) {
 
 If the `MoneyTextField` is a defined component then its usage will look like the following:
 
-```
+```javascript
 export default function MoneyTextField (props) {
   return (
     <TextField {...props} showCurrency=true showClear=true />
@@ -170,7 +170,7 @@ Cluttering the source code eventually leads to a higher mental overhead in deter
 An easier managed component approach is allowing nested components as `props` values.
 The following is a revised implementation of the original text field:
 
-```
+```javascript
 export default function PresentationalTextField (props) {
   return (
     <div>
@@ -185,7 +185,7 @@ export default function PresentationalTextField (props) {
 
 Then the `MoneyTextField` is the following defined component:
 
-```
+```javascript
 export default function CompositionalMoneyTextField (props) {
   return (
     <TextField {...props}
@@ -227,7 +227,7 @@ A React component has a `state` attached to its instance.
 This can be updated with the `setState` asynchronous setter instance method.
 In order to keep track of the input value, a simple `onChange` property can be attached to the `<input>` element.
 
-```
+```javascript
 export default class BehavioralTextField extends React.Component {
   constructor(props) {
     super(props);
@@ -279,7 +279,7 @@ A higher-order component composes a new component with these criteria:
 1. Takes components as arguments (and any configurable options)
 2. Returns a new component with the desired behavior
 
-```
+```javascript
 export default function HigherOrderComponent(Component) {
   return class RememberValueComponent extends React.Component {
     constructor(props) {
