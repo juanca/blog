@@ -396,10 +396,14 @@ Given the one-to-one mapping of the store state to the component `props`:
 1. For each event handler (closed with `dispatch`), the component updates the store state via the given `props` event handler.
 
 
-## General JavaScript Notes
+## Conclusion
 
-Although this article focuses on a React and Redux stack, these design principles can be applied to any powerful framework.
-In my personal experience, the distinct conceptual models (presentational, behavioral, and container components) can also be used in a [Backbone](http://backbonejs.org/) and [Marionette](http://marionettejs.com/) stack.
+Designing a useful component is easily achievable with carefully designed properties interface.
+Presentational, decorated, behavioral, and higher-order components are powerful tools in breaking up the responsibilities of a complex user interface.
+In addition, testing is also broken up among these components.
+
+Overall, these design principles can be applied to any powerful programming framework.
+Despite this article being geared towards a React and Redux stack, this also works in a Backbone and Marionette stack.
 The abstract idea of composing new components is a worthwhile and powerful technique.
 Whether composition is applied via arguments or wrappers, separating the concerns ultimately alleviates the classical growing pains of a codebase and facilitates the introduction to new contributors.
-I would even go as far as to say these conceptual models are useful in any environment: backend systems can also benefit from such separation of concerns -- well-tested core classes, extensible core components, minimal memory usage, etc.
+These conceptual models are useful in any environment: backend systems can also benefit from such separation of concerns -- well-tested core classes, extensible core components, minimal memory usage, etc.
