@@ -328,15 +328,62 @@ For testing purposes, a generic component is utilized without imposing any addit
 A redux container component is another example of a higher-order component:
 
 - The container component binds certain `props` to the state of the store.
-- The container component has access to the setter methods for the store (`dispatch`).
-
+- The container component has access to the setter method for the store (`dispatch`).
 
 In the previous examples, the presentational and behavioral components were self-contained.
 All of their DOM markup was driven by their `props` and internal state.
 A container component is driven by the store: it reads and writes to the store.
 The store is composed of data from the server and other container components.
+These container components are useful in facilitating complex and coupled user interfaces.
 
+The common use case it to connect an existing component with the store in order to display its data via the component's `props` interface.
+
+
+```javascript
+const mapStateToProps = (state) => {
+  return {
+    value: state.textField.value,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    onChange: (event) => {
+      dispatch(actions.updateValue(event.target.value));
+    }
+  };
+};
+
+const ServerTextField = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(TextField);
+
+export default ServerTextField;
 ```
+
+The other usage of a connected container is server data fetching.
+In order to avoid cluttering the presentational text field, the fetching logic is implemented within the component which uses the presentational text field.
+Utilizing the React component lifecycle method `componentWillMount`, fetching data from the server is straightforward:
+Fetch an endpoint, parse the response, and then dispatch the data via the same action creator.
+
+```javascript
+const mapDispatchToProps = (dispatch) => {
+  return {
+    fetchServerData: () => {
+      fetch('server-api/text-field.json')
+        .then((response) => response.json())
+        .then((json) => JSON.parse(json))
+        .then((data) => dispatch(textFieldActions.updateValue(data.value)));
+    }
+  };
+};
+```
+
+```javascript
+componentWillMount() {
+  this.props.fetchServerData();
+}
 ```
 
 
