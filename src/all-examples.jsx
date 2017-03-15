@@ -8,33 +8,46 @@ import RememberValueHigherOrderComponent from './higher-order-component-remember
 const RememberedTextField = RememberValueHigherOrderComponent(PresentationalTextField);
 const RememberedMoneyTextField = RememberValueHigherOrderComponent(CompositionalMoneyTextField);
 
-export default function AllExamples () {
-  return (
-    <div>
-      <fieldset>
-        <legend>[Presentational] Text Field</legend>
-        <PresentationalTextField onChange={() => console.log('Type ')} />
-      </fieldset>
+import ContainerTextField from './container-text-field.js';
 
-      <fieldset>
-        <legend>[Copypasta] Money Text Field</legend>
-        <PresentationalMoneyTextField onChange={() => console.log('Type $$$$ ')} />
-      </fieldset>
+export default class AllExamples extends React.Component {
+  componentWillMount() {
+    this.props.fetchServerData();
+  }
 
-      <fieldset>
-        <legend>[Presentational Higher Order Component] Money Text Field</legend>
-        <CompositionalMoneyTextField onChange={() => console.log('HOC $$$$')} />
-      </fieldset>
+  render() {
+    return (
+      <div>
+        <fieldset>
+          <legend>[Presentational] Text Field</legend>
+          <PresentationalTextField onChange={() => console.log('Type ')} />
+        </fieldset>
 
-      <fieldset>
-        <legend>[Behavioral Higher Order Component] Stateful Text Field</legend>
-        <RememberedTextField />
-      </fieldset>
+        <fieldset>
+          <legend>[Copypasta] Money Text Field</legend>
+          <PresentationalMoneyTextField onChange={() => console.log('Type $$$$ ')} />
+        </fieldset>
 
-      <fieldset>
-        <legend>[Behavioral Higher Order Component] Stateful Money Text Field</legend>
-        <RememberedMoneyTextField />
-      </fieldset>
-    </div>
-  );
-}
+        <fieldset>
+          <legend>[Presentational Higher Order Component] Money Text Field</legend>
+          <CompositionalMoneyTextField onChange={() => console.log('HOC $$$$')} />
+        </fieldset>
+
+        <fieldset>
+          <legend>[Behavioral Higher Order Component] Stateful Text Field</legend>
+          <RememberedTextField />
+        </fieldset>
+
+        <fieldset>
+          <legend>[Behavioral Higher Order Component] Stateful Money Text Field</legend>
+          <RememberedMoneyTextField />
+        </fieldset>
+
+        <fieldset>
+          <legend>[Container] Stateful Text Field</legend>
+          <ContainerTextField />
+        </fieldset>
+      </div>
+    );
+  }
+};
