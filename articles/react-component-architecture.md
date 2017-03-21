@@ -1,14 +1,16 @@
 # React Component Architecture
 
-The purpose of this article is to introduce the different tools and testing strategies available in a React and Redux stack.
-One of the goals of this article is to develop a UI component that is simple, extensible, and useful through its properties interface.
+User interfaces (and their implementation) have the potential to explode in complexity.
+As a guided example, this article will focus on developing a UI component and the different approaches to separating responsibilities.
+The purpose of this article is introducing different component architecture and their respective testing strategies
+by developing a simple, extensible, and useful UI component.
+Overall, standardizing design patterns to reduce complexity.
+
 A basic and widely used component within any application is a text field.
 This article will start with the presentational model of a text field;
 customize the display structure with additional buttons and icons;
 implement some behavioral states (e.g. keeping track of what has been typed);
 and, finally, populate the component from stored database values.
-User interfaces (and their implementations) have the potential to explode in complexity.
-This article hopes to illustrate different architectural techniques to contain logic into orthogonal systems in order to lower cognitive overhead.
 
 
 ### Useful terminology
