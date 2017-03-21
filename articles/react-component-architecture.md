@@ -22,6 +22,7 @@ As a disclaimer, it is assumed the reader has some experience with the React and
 - written some components
 - written some components which use internal state
 - written some components which use redux store state
+- written some actions, action creators, and reducers to manage a redux store
 
 
 ## Presentational Component
