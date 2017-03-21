@@ -13,27 +13,15 @@ implement some behavioral states (e.g. keeping track of what has been typed);
 and, finally, populate the component from stored database values.
 
 
-### Useful terminology
+### Audience Advisory
 
-- A **component** is either a function that returns JSX or an instance of `React.Component`.
-Note: React provides a component for every known HTML node.
-- **JSX** represents the hierarchy of components (which includes regular HTML DOM nodes).
-JavaScript code is injected into the markup with curly braces (i.e. `{someJavaScriptExpression}`).
-- The **props** expression is the key-value argument to a component.
-This object represents required and optional properties.
-- The **propTypes** validations are the types of each key-value pair in `props` to a component.
-These validations are only meant provide immediate feedback to a developer using a component (and all `propTypes` code is stripped out of the production version of a React application).
-- A **store** is a key-value object which contains all shared data (i.e. model data and UI states).
-- **Side effects** are any possible changes to different parts of the system.
+As a disclaimer, it is assumed the reader has some experience with the React and Redux libraries:
 
-
-### Assumptions
-
-This article assumes common knowledge of JavaScript modules -- how to export a module, how to avoid exporting a private function, etc.
-
-Testing strategies will be abstract.
-
-Styling will be avoided for this article? Future article will discuss different strategies.
+- JSX
+- `props` nomenclature
+- written some components
+- written some components which use internal state
+- written some components which use redux store state
 
 
 ## Presentational Component
