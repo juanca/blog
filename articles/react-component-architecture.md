@@ -64,7 +64,7 @@ In the case of the `PresentationalTextField`:
 - it displays some value in an input (i.e. `props.value`)
 - it interfaces the interactive element with parent components (i.e. `props.onChange`)
 
-While the `onChange` interface is not about displaying something, ~~it makes it more useful~~.
+While the `onChange` prop is not directly displaying some content, it is indirectly responsible for managing the content of an element.
 
 #### Why?
 
