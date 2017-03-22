@@ -76,37 +76,48 @@ This is analogous to writing a vanilla JavaScript element.
 
 #### How?
 
-Designing a presentational component (besides )
+Designing a useful presentational component is designing a robust **properties interface**.
+Given the responsibilities of displaying content,
+a presentational component is only useful when it is usable in a variety of contexts
+(i.e. its `props` should be robust enough to flexible in many contexts).
+This requires some forethought and openness to restructuring an existing interface in order to better describe a component based on its `props`.
 
-Whenever there are possible user-actions on a component, it tends to be a good idea to allow binding of an event handler.
-Given all the possible usages of user interfaces, it is crucial to develop a robust properties interface (i.e. `props`) which describes the desired usage of a component.
+For a given presentational component, most `props` will serve as text and property values to other elements
+while some will be used for event handlers on interactive elements.
+In order to make a straightforward usage of the component, it is crucial to leverage `propTypes` and `defaultProps`.
 
+##### Property types
 
-In order to provide a robust `props` API, there is the `propTypes` system -- a pseudo-type checking system to avoid misuses of the component.
-A console warning is displayed in development whenever a type is violated.
-However, these are stripped from the codebase in a production environment.
+React provides typechecking functionality.
+This allows component to describe the type for each of its properties.
+Careful descriptions can avoid bugs and avoid misuses of the component.
+Whenever a type is violated, a console warning is displayed
+(but only in development since typechecking is stripped in a production environment).
 
 ```javascript
 TextField.propTypes = {
   labelText: React.PropTypes.string,
-  onInputChange: React.PropTypes.func.isRequired,
+  onChange: React.PropTypes.func.isRequired,
+  value: React.PropTypes.string
 };
 ```
 
+In the above example, each of the available properties on the text field component are listed.
+The label text is described to be a string.
+The change event handler is a function and it is a required property.
+And, the input value is another string.
 
-In addition, default values can be specified for optional properties.
-This is more straightforward and less error-prone than defaulting the values in ternary-like expressions.
+##### Default properties
+
+In addition, default values should be specified for optional properties --
+which is all other properties which are not required.
+Whenever a property is being interpolated into an expression, a default value is better than an `undefined` value because `undefined` serializes to "undefined."
 
 ```javascript
 TextField.defaultProps = {
-  labelText: ‘Some default label’,
+  labelText: 'Text Field',
 };
 ```
-
-
-The purpose of these presentational components is to provide the source of truth for the semantic DOM structure of commonly displayed data.
-In a growing team of contributors, a simple, shareable, and straightforward system of components is essential to getting work done.
-As long as the properties interface is respected, system-wide changes can easily be carried out by anyone without any breaking risks.
 
 #### Testing
 
@@ -120,7 +131,9 @@ Given the one-to-one mapping of `props` to DOM markup, testing a presentational 
 
 ### Decorated Presentational Component
 
-### What?
+- Don't forget that a presentational component can be composed of many other components, which each have a robust properties interface.
+
+#### What?
 
 Let's suppose a new requirement: a currency symbol to the left of the input and some button to the right of the input.
 
@@ -153,11 +166,11 @@ function CompositionalMoneyTextField (props) {
 }
 ```
 
-### When?
+#### When?
 
 Useful when a user interface element can be composed of many components.
 
-### Why?
+#### Why?
 
 A naive approach is a simple copy-and-paste of the original `TextField` source:
 
@@ -213,16 +226,23 @@ The resulting `TextField` component is more versatile and straightforward.
 Although this does not solve the one-off problem, it does minimize the mental overhead for any new contributor.
 In addition, React allows for nested JSX components with the `children` property.
 
-### How?
+#### How?
 
 (props and propTypes API)
 
-### Testing
+#### Testing
 
 Given the one-to-one mapping of `props` to DOM markup, testing a decorated presentational component is straightforward.
 
 1. Given a set of `props`, the component renders the presentational component (which is itself in this case).
 1. For each hardcoded `prop`, the component renders additional DOM markup.
+
+###
+
+Overall, the purpose of presentational components is to provide the DOM structure of user interfaces.
+By developing a set of useful presentational components, design patterns can be more easily established; there exists a source of truth for the semantics, structure, and API for user interfaces.
+In a growing team of contributors, a simple, shareable, and straightforward system of components is essential to getting work done.
+As long as the properties interfaces are respected, system-wide changes can easily be carried out by any contributor without any breaking risks.
 
 
 ## Stateful Components
