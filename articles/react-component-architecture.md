@@ -68,12 +68,11 @@ While the `onChange` prop is not directly displaying some content, it is indirec
 
 #### Why?
 
-(Single Responsibility) It is ...
+Using functional presentational components provides two benefits:
 
-(Performance) As with any programming framework, instantiating objects is slower as the object has more setup.
-Essentially, a pure component will only consist of markup.
-Thereby avoiding unnecessary React component lifecycle computations.
-These are analogous to writing it in pure JavaScript versus any other framework.
+1. Manage the presentational layer with single responsibility components.
+1. Functional components are lightweight and fast: there is no inheritance of `React.Component` and its lifecycle.
+This is analogous to writing a vanilla JavaScript element.
 
 #### How?
 
