@@ -128,17 +128,16 @@ The testing strategy is straightforward because presentational components are en
 1. For varying required `props`, the component renders with varying markup.
 1. Event handlers are invoked on simulated DOM events.
 
-
 ### Decorated Presentational Component
-
-- Don't forget that a presentational component can be composed of many other components, which each have a robust properties interface.
 
 #### What?
 
-Let's suppose a new requirement: a currency symbol to the left of the input and some button to the right of the input.
+Decorating presentational components is an approach in designing a properties interface which allows other components as values.
 
-An easier managed component approach is allowing nested components as `props` values.
-The following is a revised implementation of the original text field:
+Let's suppose a couple of new requirement on the original text field:
+
+1. A currency symbol to the left of the input
+1. A button to the right of the input
 
 ```javascript
 function PresentationalTextField (props) {
@@ -151,11 +150,7 @@ function PresentationalTextField (props) {
     </div>
   );
 }
-```
 
-Then the `MoneyTextField` is the following defined component:
-
-```javascript
 function CompositionalMoneyTextField (props) {
   return (
     <TextField {...props}
@@ -166,13 +161,19 @@ function CompositionalMoneyTextField (props) {
 }
 ```
 
+The original text field component is revised to include two additional properties: `props.prefix` and `props.postfix`.
+These represent placeholders for other components as decorations.
+If any is `undefined` then React will just skip it.
+Note: any string value is actually considered a text node.
+
 #### When?
 
-Useful when a user interface element can be composed of many components.
+The sole responsibility of a decorations on a presentational component is facilitate complex user interfaces.
+This is useful when complex user interfaces can be composed of many simple and robust  components.
 
 #### Why?
 
-A naive approach is a simple copy-and-paste of the original `TextField` source:
+A naive approach is a simple copy-and-paste of the original `PresentationalTextField` source:
 
 ```javascript
 function PresentationalMoneyTextField (props) {
@@ -187,12 +188,11 @@ function PresentationalMoneyTextField (props) {
 }
 ```
 
-For the purposes of the requirements, this is a complete solution (albeit a good one).
-Any improvements and changes to the `TextField` will need manual labor to propagate the same to the `MoneyTextField`.
-As long as someone is dedicating time to normalize all components, this is a doable approach.
-On the other hand, this is not a scalable approach -- each additional component just increases the on-boarding process for a contributor.
+For the purposes of the requirements, this is a complete solution -- albeit a good one.
+This is not a scalable approach as it takes a lot of manual effort to normalize all components (i.e. changes to either component will require changes to the other component).
+Each additional component just increases the on-boarding process for a contributor.
 
-Another naive approach is a configurable approach with the original `TextField` source:
+Another naive approach is configurable functionality with the original `PresentationalTextField` source:
 
 ```javascript
 function PresentationalTextField (props) {
@@ -205,34 +205,33 @@ function PresentationalTextField (props) {
     </div>
   );
 }
-```
 
-If the `MoneyTextField` is a defined component then its usage will look like the following:
-
-```javascript
-function MoneyTextField (props) {
+function ConfiguredMoneyTextField (props) {
   return (
     <TextField {...props} showCurrency=true showClear=true />
   );
 }
 ```
 
-Although this solves the linearly increasing amount of components problems, this approach introduces a new problem:
+Although configurable components eases normalization problems,
+this approach introduces a new problem:
 an additional decoration implies another conditional.
-These conditionals have the potential to clutter source code.
-Cluttering the source code eventually leads to a higher mental overhead in determining the purpose of the original component.
+These conditionals have the lead to cluttered source code and a higher cyclomatic complexity.
+This obfuscates the original purpose of the component.
 
-The resulting `TextField` component is more versatile and straightforward.
-Although this does not solve the one-off problem, it does minimize the mental overhead for any new contributor.
-In addition, React allows for nested JSX components with the `children` property.
+Instead, using decorations as a means of defining complex user interfaces is an approach which separates the concerns of components among many.
+The resulting `PresentationalTextField` component is more versatile and straightforward:
+it solves the normalization problem and lowers cyclomatic complexity.
 
 #### How?
 
-(props and propTypes API)
+Designing useful decorations in a presentational component is designing a robust **properties interface** which have structural meaning.
+By keeping properties DRY, components have the potential to be versatile.
+
 
 #### Testing
 
-Given the one-to-one mapping of `props` to DOM markup, testing a decorated presentational component is straightforward.
+The testing strategy is straightforward because decorated presentational components are entirely driven via `props`.
 
 1. Given a set of `props`, the component renders the presentational component (which is itself in this case).
 1. For each hardcoded `prop`, the component renders additional DOM markup.
@@ -462,10 +461,14 @@ Given the one-to-one mapping of the store state to the component `props`:
 
 Designing a useful component is easily achievable with carefully designed properties interface.
 
+
 ### leads to... Complexity reduction
 
 Presentational, decorated, behavioral, and higher-order components are powerful tools in breaking up the responsibilities of a complex user interface.
 In addition, testing is also broken up among these components.
+
+Having a set of simple user interface components still allows for a complex user interface.
+It also allows for easier development of new complex user interfaces.
 
 ### Universal design principles
 
