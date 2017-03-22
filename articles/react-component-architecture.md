@@ -25,11 +25,17 @@ As a disclaimer, it is assumed the reader has some experience with the React and
 - written some actions, action creators, and reducers to manage a redux store
 
 
-## Presentational Component
+## Stateless Components
 
-A presentational component is known as **stateless** or **pure** because it is derived entirely from the `props` passed into it.
+Stateless components are the WYSIWYG building blocks of React.
+
+### Presentational Component
+
+#### What?
+
+A stateless presentational component is entirely derived from the `props` passed into it.
 Given the simplicity of this data flow, it is guaranteed that all other UI components will be unaffected by the inclusion of a presentational component.
-A presentational component is known as **functional** because it does not have any side effects and it always returns the same DOM markup given a set of props.
+Note: there are usages of using some state in a presentational component (e.g. managing unique `htmlFor` attributes) but, for the purposes of article, let's focus on a functional component example.
 
 Let's consider a text field component with two basic requirements:
 
@@ -49,12 +55,30 @@ function PresentationalTextField (props) {
 }
 ```
 
-As with any HTML widget, it is good practice to simplify the DOM as much as possible.
-React imposes one requirement to components: one root element (e.g. `<div>`).
+#### When?
 
-The biggest responsibility of this component is displaying data.
-In the case of the `PresentationalTextField`, it displays some text as a label (`props.labelText`) and populates a value into the input (`props.value`).
-An additional property is exposed in order to make this component more useful: `props.onChange`.
+The only responsibilities of these type of components are displaying **data** and **interactive elements**.
+In the case of the `PresentationalTextField`:
+
+- it displays some text as a label (i.e. `props.labelText`)
+- it displays some value in an input (i.e. `props.value`)
+- it interfaces the interactive element with parent components (i.e. `props.onChange`)
+
+While the `onChange` interface is not about displaying something, ~~it makes it more useful~~.
+
+#### Why?
+
+(Single Responsibility) It is ...
+
+(Performance) As with any programming framework, instantiating objects is slower as the object has more setup.
+Essentially, a pure component will only consist of markup.
+Thereby avoiding unnecessary React component lifecycle computations.
+These are analogous to writing it in pure JavaScript versus any other framework.
+
+#### How?
+
+Designing a presentational component (besides )
+
 Whenever there are possible user-actions on a component, it tends to be a good idea to allow binding of an event handler.
 Given all the possible usages of user interfaces, it is crucial to develop a robust properties interface (i.e. `props`) which describes the desired usage of a component.
 
@@ -85,15 +109,6 @@ The purpose of these presentational components is to provide the source of truth
 In a growing team of contributors, a simple, shareable, and straightforward system of components is essential to getting work done.
 As long as the properties interface is respected, system-wide changes can easily be carried out by anyone without any breaking risks.
 
-
-#### Performance
-
-As with any programming framework, instantiating objects is slower as the object has more setup.
-Essentially, a pure component will only consist of markup.
-Thereby avoiding unnecessary React component lifecycle computations.
-These are analogous to writing it in pure JavaScript versus any other framework.
-
-
 #### Testing
 
 Given the one-to-one mapping of `props` to DOM markup, testing a presentational component is straightforward.
@@ -104,9 +119,46 @@ Given the one-to-one mapping of `props` to DOM markup, testing a presentational 
 1. Event handlers are invoked on simulated DOM events.
 
 
-## Advanced Presentational Components: Decorations
+### Decorated Presentational Component
 
-Let's suppose a new requirement: a currency symbol to the left of the input and some icon to the right of the input.
+### What?
+
+Let's suppose a new requirement: a currency symbol to the left of the input and some button to the right of the input.
+
+An easier managed component approach is allowing nested components as `props` values.
+The following is a revised implementation of the original text field:
+
+```javascript
+function PresentationalTextField (props) {
+  return (
+    <div>
+      <label>{props.labelText}</label>
+      {props.prefix}
+      <input onChange={props.onChange} value={props.value} />
+      {props.postfix}
+    </div>
+  );
+}
+```
+
+Then the `MoneyTextField` is the following defined component:
+
+```javascript
+function CompositionalMoneyTextField (props) {
+  return (
+    <TextField {...props}
+      prefix={<div>$</div>}
+      postfix={<div>clear</div>}
+    />
+  );
+}
+```
+
+### When?
+
+Useful when a user interface element can be composed of many components.
+
+### Why?
 
 A naive approach is a simple copy-and-paste of the original `TextField` source:
 
@@ -158,41 +210,15 @@ an additional decoration implies another conditional.
 These conditionals have the potential to clutter source code.
 Cluttering the source code eventually leads to a higher mental overhead in determining the purpose of the original component.
 
-An easier managed component approach is allowing nested components as `props` values.
-The following is a revised implementation of the original text field:
-
-```javascript
-function PresentationalTextField (props) {
-  return (
-    <div>
-      <label>{props.labelText}</label>
-      {props.prefix}
-      <input onChange={props.onChange} value={props.value} />
-      {props.postfix}
-    </div>
-  );
-}
-```
-
-Then the `MoneyTextField` is the following defined component:
-
-```javascript
-function CompositionalMoneyTextField (props) {
-  return (
-    <TextField {...props}
-      prefix={<div>$</div>}
-      postfix={<div>clear</div>}
-    />
-  );
-}
-```
-
 The resulting `TextField` component is more versatile and straightforward.
 Although this does not solve the one-off problem, it does minimize the mental overhead for any new contributor.
 In addition, React allows for nested JSX components with the `children` property.
 
+### How?
 
-#### Testing
+(props and propTypes API)
+
+### Testing
 
 Given the one-to-one mapping of `props` to DOM markup, testing a decorated presentational component is straightforward.
 
@@ -200,19 +226,14 @@ Given the one-to-one mapping of `props` to DOM markup, testing a decorated prese
 1. For each hardcoded `prop`, the component renders additional DOM markup.
 
 
-## Behavioral Component
+## Stateful Components
+
+#### What?
 
 A behavioral component is known as **stateful** or **impure** because it is derived from the `props` passed in and some hidden variables within the component.
 In order to introduce `state` into a component, the component needs to inherit from the `React.Component` in order to take advantage of the [React component lifecycle](https://facebook.github.io/react/docs/react-component.html).
-This can be achieved by modifying the original presentational component or wrapping the original presentational component.
-Normally, behavioral components are perfect opportunities to implement **higher-order components**.
-A higher-order component is the technique of using a component to produce a new component.
-
-Whenever a component needs to do more than just displaying data, a behavior component would suffice.
 
 Let's consider a requirement to programmatically keep track of the value within the `<input>` in the `TextField` component.
-
-### Non-higher-order component
 
 A React component has a `state` attached to its instance.
 This can be updated with the `setState` asynchronous setter instance method.
@@ -251,6 +272,17 @@ However, this approach forces the `TextField` to always manage its input value.
 Any changes to this flow requires a modification to the original source code of the `TextField` --
 whose purpose was to just display a label and an input element.
 
+#### When?
+
+Whenever a component needs to do more than just displaying data, a behavior component would suffice.
+
+#### Why?
+
+
+
+#### How?
+
+This can be achieved by duplicating or modifying the original presentational component.
 
 #### Testing
 
@@ -261,7 +293,13 @@ In addition to testing all presentational component responsibilities, state rela
 1. For each tracked state value, the component updates the state value via some event handler.
 
 
-### Higher-order component
+### Higher-order Component
+
+#### What?
+
+ or wrapping the original presentational component.
+Normally, behavioral components are perfect opportunities to implement **higher-order components**.
+A higher-order component is the technique of using a component to produce a new component.
 
 A more versatile approach is decoupling the desired behavior from the desired presentation.
 The distinction to draw is a new component which can remember some value for any given component.
@@ -298,11 +336,21 @@ function HigherOrderComponent(Component) {
 }
 ```
 
+#### When?
+
+Whenever a component needs to do more than just displaying data, a behavior component would suffice.
+And the presentational layer can be its own component.
+
+#### Why?
+
+Single responsibility.
+
+#### How?
+
 The factory can be used to remember any value as long as the supplied component has an `onChange` and `value` properties.
 Utilizing this pattern reinforces the importance of designing a consistent and robust `props` interface for components.
 A behavior higher-order component binds certain `props` to the internal state of the resulting component.
 However, if for any reason a component's `props` interface does not match with the usage of a higher-order component, additional arguments can be utilized to customize the binding of the generic component.
-
 
 #### Testing
 
@@ -314,7 +362,9 @@ For testing purposes, a generic component is utilized without imposing any addit
 1. For each tracked state value, the `Component` updates the state value via the given `props` event handler.
 
 
-## Container Components
+### Connected Component
+
+#### What?
 
 A redux container component is another example of a higher-order component:
 
@@ -375,7 +425,9 @@ componentWillMount() {
 }
 ```
 
-
+#### When?
+#### Why?
+#### How?
 #### Testing
 
 Given the one-to-one mapping of the store state to the component `props`:
@@ -387,9 +439,16 @@ Given the one-to-one mapping of the store state to the component `props`:
 
 ## Conclusion
 
+### Component API: `props` and `propTypes`
+
 Designing a useful component is easily achievable with carefully designed properties interface.
+
+### leads to... Complexity reduction
+
 Presentational, decorated, behavioral, and higher-order components are powerful tools in breaking up the responsibilities of a complex user interface.
 In addition, testing is also broken up among these components.
+
+### Universal design principles
 
 Overall, these design principles can be applied to any powerful programming framework.
 Despite this article being geared towards a React and Redux stack, this also works in a Backbone and Marionette stack.
