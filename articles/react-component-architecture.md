@@ -121,7 +121,7 @@ TextField.defaultProps = {
 
 #### Testing
 
-Given the one-to-one mapping of `props` to DOM markup, testing a presentational component is straightforward.
+The testing strategy is straightforward because presentational components are entirely driven via `props`.
 
 1. For an empty set of optional `props`, the component renders with the default markup.
 1. For a given set of optional `props`, the component renders with customized markup.
