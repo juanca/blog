@@ -248,14 +248,14 @@ As long as the properties interfaces are respected, system-wide changes can easi
 
 #### What?
 
-A behavioral component is known as **stateful** or **impure** because it is derived from the `props` passed in and some hidden variables within the component.
-In order to introduce `state` into a component, the component needs to inherit from the `React.Component` in order to take advantage of the [React component lifecycle](https://facebook.github.io/react/docs/react-component.html).
+Stateful components are distinguished from stateless components from the fact that there exists state information.
+Once a component has significant state information, it is assumed it behaves different based on different states and its properties interface.
+In order to introduce state information, the component needs to inherit from `React.Component`.
+Instances of a `React.Component` have their own `this.state` and use the [React Component Lifecycle methods](https://facebook.github.io/react/docs/react-component.html).
 
-Let's consider a requirement to programmatically keep track of the value within the `<input>` in the `TextField` component.
+Let's consider a new requirement to the text field:
 
-A React component has a `state` attached to its instance.
-This can be updated with the `setState` asynchronous setter instance method.
-In order to keep track of the input value, a simple `onChange` property can be attached to the `<input>` element.
+1. Programmatically keep track of the value within the `<input>` element
 
 ```javascript
 class BehavioralTextField extends React.Component {
@@ -284,47 +284,45 @@ class BehavioralTextField extends React.Component {
 }
 ```
 
-For the purpose of the requirements, this is a complete solution.
-The component stores the input value in `this.state.value` and updates it on `change` events.
-However, this approach forces the `TextField` to always manage its input value.
-Any changes to this flow requires a modification to the original source code of the `TextField` --
-whose purpose was to just display a label and an input element.
+For the purpose of the requirements, this is a complete solution (albeit a good one).
+The component stores the input value in `this.state.value` and uses it to populate the value property of the input.
+The value is updated on `change` events (from the input element) via the `setState` asynchronous setter method.
+And the presentational model is also implemented.
 
-#### When?
+#### When and why?
 
-Whenever a component needs to do more than just displaying data, a behavior component would suffice.
-
-#### Why?
-
-
+Once requirements indicate responsibilities outside the presentational layer, stateful components will suffice in accommodating any required **behavior** responsibilities.
 
 #### How?
 
-This can be achieved by duplicating or modifying the original presentational component.
+This can be achieved by duplicating or modifying the original presentational component. However, each approaches exhibit problems:
+
+- Assuming a duplication implementation: this approach experiences normalization problems.
+- Assuming a modification implementation (to avoid any normalization problems):
+this approach forces the text field to always manage its input value --
+blocking any modifications capabilities from its parent component.
 
 #### Testing
 
-In addition to testing all presentational component responsibilities, state related tests are required a function of DOM output.
+In addition to testing all presentational component responsibilities, state related tests are required as a function of DOM output.
 
 1. For each state value, the component renders with a default value.
 1. For a given state value, the component renders with the given value.
-1. For each tracked state value, the component updates the state value via some event handler.
-
+1. For each state value, the component updates the state value via some event handler.
 
 ### Higher-order Component
 
+A better approach would be akin to decorations on presentational components without foregoing performance and SRP benefits.
+
 #### What?
 
- or wrapping the original presentational component.
-Normally, behavioral components are perfect opportunities to implement **higher-order components**.
-A higher-order component is the technique of using a component to produce a new component.
+Encapsulating behavior responsibilities for components are perfect opportunities to implement **higher-order components**.
+A higher-order component is a factory which produces a new component based on existing components and options.
+By using a factory to produce a desired component, it decouples the required behaviors from the required presentation.
 
-A more versatile approach is decoupling the desired behavior from the desired presentation.
-The distinction to draw is a new component which can remember some value for any given component.
-A higher-order component composes a new component with these criteria:
+Revisiting the new requirement to the text field:
 
-1. Takes components as arguments (and any configurable options)
-2. Returns a new component with the desired behavior
+1. Programmatically keep track of the value within the `<input>` element
 
 ```javascript
 function HigherOrderComponent(Component) {
@@ -354,42 +352,48 @@ function HigherOrderComponent(Component) {
 }
 ```
 
+This `HigherOrderComponent` is a factory with takes any kind of component and returns a different component.
+The outputted component has the sole responsibility of remembering some value via `onChange` and `value` properties.
+
 #### When?
 
-Whenever a component needs to do more than just displaying data, a behavior component would suffice.
-And the presentational layer can be its own component.
+Once requirements indicate responsibilities outside the presentational layer, stateful components will suffice in accommodating any required **behavior** responsibilities.  
+Higher-order components are best used when the presentational models are pre-existing or extractable from the requirements.
 
 #### Why?
 
-Single responsibility.
+Given existing components, a higher-order component can produce the desired component without violating the DRY and SRP principles.
 
 #### How?
 
-The factory can be used to remember any value as long as the supplied component has an `onChange` and `value` properties.
-Utilizing this pattern reinforces the importance of designing a consistent and robust `props` interface for components.
-A behavior higher-order component binds certain `props` to the internal state of the resulting component.
-However, if for any reason a component's `props` interface does not match with the usage of a higher-order component, additional arguments can be utilized to customize the binding of the generic component.
+In this example, the outputted component can be used to remember any value as long as the supplied component (to the factory) has the `onChange` and `value` properties.
+Utilizing this pattern reinforces the importance of designing a robust `props` interface for components.
+A higher-order component binds certain `props` to the internal state of the outputted component.
+
+Note:
+if for any reason the given component's properties interface does not match with the implementation of the higher-order component,
+additional arguments can be utilized to customize the binding of the generic component.
+However, this introduces cyclomatic complexity.
 
 #### Testing
 
-Given one-to-one mapping of `this.state` to `Component` `props`, only related tests are required.
-For testing purposes, a generic component is utilized without imposing any additional logic.
+The testing strategy is straightforward because higher-order components implement state information on pre-existing property interfaces.
+For testing purposes, a generic component is used without imposing any additional logic.
 
 1. For each state value, the `Component` has specific default `props` values.
 1. For a given state value, the `Component` has the given `props` values.
 1. For each tracked state value, the `Component` updates the state value via the given `props` event handler.
 
-
 ### Connected Component
 
 #### What?
 
-A redux container component is another example of a higher-order component:
+A redux connected component is another example of a higher-order component which outputs a stateful component.
+However, instead of using `this.state` on an instance of a `React.Component`:
 
-- The container component binds certain `props` to the state of the store.
-- The container component has access to the setter method for the store (`dispatch`).
+- The higher-order component binds certain `props` to the state of the store.
+- The higher-order component has access to the synchronous setter method for the store (`dispatch`).
 
-In the previous examples, the presentational and behavioral components were self-contained.
 All of their DOM markup was driven by their `props` and internal state.
 A container component is driven by the store: it reads and writes to the store.
 The store is composed of data from the server and other container components.
