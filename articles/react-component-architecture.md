@@ -352,8 +352,12 @@ function HigherOrderComponent(Component) {
 }
 ```
 
-This `HigherOrderComponent` is a factory with takes any kind of component and returns a different component.
+For the purpose of the requirements, this is a complete solution.
+This `HigherOrderComponent` is a factory which takes any kind of component and returns a different component.
 The outputted component has the sole responsibility of remembering some value via `onChange` and `value` properties.
+The component stores the input value in `this.state.value` and uses it to populate the value property of the input.
+The value is updated on `change` events (from the input element) via the `setState` asynchronous setter method.
+The component delegates presentational responsibilities to the base component used by the factory.
 
 #### When?
 
@@ -362,11 +366,11 @@ Higher-order components are best used when the presentational models are pre-exi
 
 #### Why?
 
-Given existing components, a higher-order component can produce the desired component without violating the DRY and SRP principles.
+Given existing components, a higher-order component can produce the desired component without violating the DRY and SR principles.
 
 #### How?
 
-In this example, the outputted component can be used to remember any value as long as the supplied component (to the factory) has the `onChange` and `value` properties.
+In this example, the outputted component can be used to remember any value as long as the supplied component (to the factory) has the `onChange` and `value` **properties interfaces**.
 Utilizing this pattern reinforces the importance of designing a robust `props` interface for components.
 A higher-order component binds certain `props` to the internal state of the outputted component.
 
@@ -389,18 +393,20 @@ For testing purposes, a generic component is used without imposing any additiona
 #### What?
 
 A redux connected component is another example of a higher-order component which outputs a stateful component.
-However, instead of using `this.state` on an instance of a `React.Component`:
+However, instead of using `this.state` on an instance of a `React.Component`, it applies the following **behaviors**:
 
-- The higher-order component binds certain `props` to the state of the store.
-- The higher-order component has access to the synchronous setter method for the store (`dispatch`).
+- Binds certain `props` to the state of the store.
+- Provides access to the synchronous setter method for the store (`dispatch`).
 
-All of their DOM markup was driven by their `props` and internal state.
-A container component is driven by the store: it reads and writes to the store.
-The store is composed of data from the server and other container components.
-These container components are useful in facilitating complex and coupled user interfaces.
+A connected component is driven by the store
+-- it reads and writes to the store --
+and uses the **properties interface** of its base component.
+Leveraging the store simplifies sharing state information between any components
+which facilitates building intricate user interfaces.
 
-The common use case it to connect an existing component with the store in order to display its data via the component's `props` interface.
+Revisiting the new requirement to the text field:
 
+1. Programmatically keep track of the value within the `<input>` element (and make it shareable to other components)
 
 ```javascript
 const mapStateToProps = (state) => {
@@ -417,39 +423,35 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-const ServerTextField = connect(
+const ConnectedTextField = connect(
   mapStateToProps,
   mapDispatchToProps
-)(TextField);
+)(PresentationalTextField);
 ```
 
-The other usage of a connected container is server data fetching.
-In order to avoid cluttering the presentational text field, the fetching logic is implemented within the component which uses the presentational text field.
-Utilizing the React component lifecycle method `componentWillMount`, fetching data from the server is straightforward:
-Fetch an endpoint, parse the response, and then dispatch the data via the same action creator.
-
-```javascript
-const mapDispatchToProps = (dispatch) => {
-  return {
-    fetchServerData: () => {
-      fetch('server-api/text-field.json')
-        .then((response) => response.json())
-        .then((json) => JSON.parse(json))
-        .then((data) => dispatch(textFieldActions.updateValue(data.value)));
-    }
-  };
-};
-```
-
-```javascript
-componentWillMount() {
-  this.props.fetchServerData();
-}
-```
+For the purpose of the requirements, this is a complete solution.
+The higher-order `connect` component is a factory which takes any kind of component, some functions, and returns a different component (in this case, `ConnectedTextField`).
+The outputted `ConnectedTextField` component has the sole responsibility of allowing reading and writing to the store via the `onChange` and `value` properties:
+the input value is shareable via the store's `state.textField.value` reference;
+the `state.textField.value` reference is updated via the `dispatch` synchronous setter method.
+The component delegates presentational responsibilities to the base `PresentationalTextField` component used by the `connect` factory.
 
 #### When?
+
+Once requirements indicate shared responsibilities outside the presentational layer, stateful connected components are the best solutions in accommodating any required shared stateful responsibilities.
+Higher-order connected components require pre-existing components.
+
 #### Why?
+
+A higher-order connect component produces components with a single responsibility:
+facilitate reading and writing shared state information.
+
 #### How?
+
+In this example, the `ConnectedTextField` component is used to pull the input value from the store and push a new input value to the store -- as long as the `PresentationalTextField` component has the `onChange` and `value` **property interfaces**.
+Utilizing this pattern reinforces the importance of designing a robust `props` interface for components.
+A higher-order connected component binds certain `props` to the getters and setters of the store.
+
 #### Testing
 
 Given the one-to-one mapping of the store state to the component `props`:
@@ -457,6 +459,55 @@ Given the one-to-one mapping of the store state to the component `props`:
 1. For the default store state, the component has specific default `props` values.
 1. For a given store state, the component has the given `props` values.
 1. For each event handler (closed with `dispatch`), the component updates the store state via the given `props` event handler.
+
+#### Data fetching example
+
+In addition to sharing state information from components via the store,
+it is common to share fetched data from a server.
+Isolating data fetching logic into connected components facilitates DRY and SR principles:
+
+- using the synchronous `dispatch` setter method to write into the store
+- taking advantage of the provided `React.Component` lifecycle methods
+- avoid cluttering the presentational text field with any data fetching logic
+
+```javascript
+function HigherOrderComponent(Component) {
+  return class FetchOnMount extends React.Component {
+    componentWillMount() {
+      this.props.fetchServerData();
+    }
+
+    render() {
+      return <Component {...this.props} />;
+    }
+  }
+}
+
+const FetchTextField = HigherOrderComponent(ConnectedTextField);
+
+const mapStateToProps = () => {};
+const mapDispatchToProps = (dispatch) => {
+  return {
+    fetchServerData: () => {
+      fetch('server-api/text-field.json')
+        .then((response) => response.json())
+        .then((json) => JSON.parse(json))
+        .then((data) => dispatch(actions.updateValue(data.value)));
+    }
+  };
+};
+
+const ServerTextField = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ConnectedTextField);
+```
+
+Utilizing the React component lifecycle method `componentWillMount`, fetching data from the server is straightforward:
+
+1. Fetch an endpoint
+1. Parse the response
+1. Dispatch the new input value (with the same code from `ConnectedTextField`).
 
 
 ## Conclusion
@@ -481,3 +532,13 @@ Despite this article being geared towards a React and Redux stack, this also wor
 The abstract idea of composing new components is a worthwhile and powerful technique.
 Whether composition is applied via arguments or wrappers, separating the concerns ultimately alleviates the classical growing pains of a codebase and facilitates the introduction to new contributors.
 These conceptual models are useful in any environment: backend systems can also benefit from such separation of concerns -- well-tested core classes, extensible core components, minimal memory usage, etc.
+
+
+
+~~Random~~
+
+To summarize:
+
+- A stateless presentational component is driven by `props`
+- A stateful higher-ordered component is driven by `this.state`
+- A stateful connected component is driven by a redux `store`
