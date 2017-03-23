@@ -79,20 +79,20 @@ This is analogous to writing a vanilla JavaScript element.
 Designing a useful presentational component is designing a robust **properties interface**.
 Given the responsibilities of displaying content,
 a presentational component is only useful when it is usable in a variety of contexts
-(i.e. its `props` should be robust enough to flexible in many contexts).
+(i.e. its `props` should be robust enough to be flexible in many contexts).
 This requires some forethought and openness to restructuring an existing interface in order to better describe a component based on its `props`.
 
 For a given presentational component, most `props` will serve as text and property values to other elements
-while some will be used for event handlers on interactive elements.
+while some will be used as event handlers on interactive elements.
 In order to make a straightforward usage of the component, it is crucial to leverage `propTypes` and `defaultProps`.
 
 ##### Property types
 
 React provides typechecking functionality.
-This allows component to describe the type for each of its properties.
-Careful descriptions can avoid bugs and avoid misuses of the component.
+This allows a component to describe the type for each of its properties.
+Careful descriptions can avoid bugs and misuses of the component.
 Whenever a type is violated, a console warning is displayed
-(but only in development since typechecking is stripped in a production environment).
+(but only during development since typechecking is stripped in a production environment).
 
 ```javascript
 TextField.propTypes = {
@@ -110,8 +110,8 @@ And, the input value is another string.
 ##### Default properties
 
 In addition, default values should be specified for optional properties --
-which is all other properties which are not required.
-Whenever a property is being interpolated into an expression, a default value is better than an `undefined` value because `undefined` serializes to "undefined."
+which are all other properties which are not required.
+Whenever a property is being interpolated into an expression, a default value is better than an `undefined` value because `undefined` serializes to "undefined".
 
 ```javascript
 TextField.defaultProps = {
@@ -155,7 +155,7 @@ function CompositionalMoneyTextField (props) {
   return (
     <TextField {...props}
       prefix={<div>$</div>}
-      postfix={<div>clear</div>}
+      postfix={<button>clear</button>}
     />
   );
 }
@@ -163,17 +163,17 @@ function CompositionalMoneyTextField (props) {
 
 The original text field component is revised to include two additional properties: `props.prefix` and `props.postfix`.
 These represent placeholders for other components as decorations.
-If any is `undefined` then React will just skip it.
-Note: any string value is actually considered a text node.
+React skips any `undefined` node during the rendering flow.
+Note: a string value is actually considered as a text node.
 
 #### When?
 
-The sole responsibility of a decorations on a presentational component is facilitate complex user interfaces.
-This is useful when complex user interfaces can be composed of many simple and robust  components.
+The sole responsibility of decorations on a presentational component is to facilitate complex user interfaces.
+This is useful when complex user interfaces can be **composed** of many simple and robust components.
 
 #### Why?
 
-A naive approach is a simple copy-and-paste of the original `PresentationalTextField` source:
+A naive solution is a simple copy-and-paste of the original `PresentationalTextField` source:
 
 ```javascript
 function PresentationalMoneyTextField (props) {
@@ -182,7 +182,7 @@ function PresentationalMoneyTextField (props) {
       <label>{props.labelText}</label>
       <div>$$$</div>
       <input onChange={props.onChange} value={props.value} />
-      <div>clear</div>
+      <button>clear</button>
     </div>
   );
 }
@@ -201,7 +201,7 @@ function PresentationalTextField (props) {
       <label>{props.labelText}</label>
       {props.showCurrency ? <div>$$$</div> : undefined}
       <input onChange={props.onChange} value={props.value} />
-      {props.showClear ? <div>clear</div> : undefined}
+      {props.showClear ? <button>clear</button> : undefined}
     </div>
   );
 }
@@ -216,7 +216,7 @@ function ConfiguredMoneyTextField (props) {
 Although configurable components eases normalization problems,
 this approach introduces a new problem:
 an additional decoration implies another conditional.
-These conditionals have the lead to cluttered source code and a higher cyclomatic complexity.
+These conditionals lead to cluttered source code and a higher cyclomatic complexity.
 This obfuscates the original purpose of the component.
 
 Instead, using decorations as a means of defining complex user interfaces is an approach which separates the concerns of components among many.
@@ -249,7 +249,7 @@ As long as the properties interfaces are respected, system-wide changes can easi
 #### What?
 
 Stateful components are distinguished from stateless components from the fact that there exists state information.
-Once a component has significant state information, it is assumed it behaves different based on different states and its properties interface.
+Once a component has significant state information, it is assumed to behave differently based on different possible states and different properties.
 In order to introduce state information, the component needs to inherit from `React.Component`.
 Instances of a `React.Component` have their own `this.state` and use the [React Component Lifecycle methods](https://facebook.github.io/react/docs/react-component.html).
 
@@ -291,11 +291,11 @@ And the presentational model is also implemented.
 
 #### When and why?
 
-Once requirements indicate responsibilities outside the presentational layer, stateful components will suffice in accommodating any required **behavior** responsibilities.
+Once requirements indicate responsibilities outside the presentational layer, stateful components will suffice in accommodating any required **behavioral** responsibilities.
 
 #### How?
 
-This can be achieved by duplicating or modifying the original presentational component. However, each approaches exhibit problems:
+This can be achieved by duplicating or modifying the original presentational component. However, each approach exhibits its own problems:
 
 - Assuming a duplication implementation: this approach experiences normalization problems.
 - Assuming a modification implementation (to avoid any normalization problems):
@@ -316,8 +316,8 @@ A better approach would be akin to decorations on presentational components with
 
 #### What?
 
-Encapsulating behavior responsibilities for components are perfect opportunities to implement **higher-order components**.
-A higher-order component is a factory which produces a new component based on existing components and options.
+Encapsulating behavioral responsibilities for components are perfect opportunities to implement **higher-order components**.
+A higher-order component is a factory which produces a new component based on existing components and additional options.
 By using a factory to produce a desired component, it decouples the required behaviors from the required presentation.
 
 Revisiting the new requirement to the text field:
@@ -357,20 +357,23 @@ This `HigherOrderComponent` is a factory which takes any kind of component and r
 The outputted component has the sole responsibility of remembering some value via `onChange` and `value` properties.
 The component stores the input value in `this.state.value` and uses it to populate the value property of the input.
 The value is updated on `change` events (from the input element) via the `setState` asynchronous setter method.
-The component delegates presentational responsibilities to the base component used by the factory.
+The component delegates presentational responsibilities to the base component given to the factory.
 
 #### When?
 
-Once requirements indicate responsibilities outside the presentational layer, stateful components will suffice in accommodating any required **behavior** responsibilities.  
+Once requirements indicate responsibilities outside the presentational layer, stateful components will suffice in accommodating any required **behavioral** responsibilities.
 Higher-order components are best used when the presentational models are pre-existing or extractable from the requirements.
 
 #### Why?
 
-Given existing components, a higher-order component can produce the desired component without violating the DRY and SR principles.
+Given existing components, a higher-order component can produce the desired component without
+
+1. violating the DRY and SR principles
+1. disregarding performance benefits from functional components
 
 #### How?
 
-In this example, the outputted component can be used to remember any value as long as the supplied component (to the factory) has the `onChange` and `value` **properties interfaces**.
+In this example, the outputted component can be used to remember any value as long as the supplied component (to the factory) has the `onChange` and `value` **properties interface**.
 Utilizing this pattern reinforces the importance of designing a robust `props` interface for components.
 A higher-order component binds certain `props` to the internal state of the outputted component.
 
@@ -381,18 +384,18 @@ However, this introduces cyclomatic complexity.
 
 #### Testing
 
-The testing strategy is straightforward because higher-order components implement state information on pre-existing property interfaces.
+The testing strategy is straightforward because higher-order components implement state information on a pre-existing properties interface.
 For testing purposes, a generic component is used without imposing any additional logic.
 
 1. For each state value, the `Component` has specific default `props` values.
 1. For a given state value, the `Component` has the given `props` values.
-1. For each tracked state value, the `Component` updates the state value via the given `props` event handler.
+1. For each state value, the `Component` updates the state value via the given `props` event handler.
 
 ### Connected Component
 
 #### What?
 
-A redux connected component is another example of a higher-order component which outputs a stateful component.
+The redux `connect` component is another example of a higher-order component which outputs a stateful component.
 However, instead of using `this.state` on an instance of a `React.Component`, it applies the following **behaviors**:
 
 - Binds certain `props` to the state of the store.
@@ -448,7 +451,7 @@ facilitate reading and writing shared state information.
 
 #### How?
 
-In this example, the `ConnectedTextField` component is used to pull the input value from the store and push a new input value to the store -- as long as the `PresentationalTextField` component has the `onChange` and `value` **property interfaces**.
+In this example, the `ConnectedTextField` component is used to pull the input value from the store and push a new input value to the store -- as long as the `PresentationalTextField` component has the `onChange` and `value` **properties interface**.
 Utilizing this pattern reinforces the importance of designing a robust `props` interface for components.
 A higher-order connected component binds certain `props` to the getters and setters of the store.
 
@@ -512,33 +515,19 @@ Utilizing the React component lifecycle method `componentWillMount`, fetching da
 
 ## Conclusion
 
-### Component API: `props` and `propTypes`
+- A stateless presentational component is driven by `props`
+- A stateful higher-ordered component is driven by `this.state`
+- A stateful connected component is driven by a redux `store`
 
-Designing a useful component is easily achievable with carefully designed properties interface.
-
-
-### leads to... Complexity reduction
-
-Presentational, decorated, behavioral, and higher-order components are powerful tools in breaking up the responsibilities of a complex user interface.
-In addition, testing is also broken up among these components.
-
-Having a set of simple user interface components still allows for a complex user interface.
-It also allows for easier development of new complex user interfaces.
-
-### Universal design principles
+Designing a useful component is easily achievable with carefully designed properties interfaces.
+Given the possibilities of composing new components, intricate user interfaces are achievable and scalable.
+Taking advantage of the many different layers of responsibilities --
+presentational, decorations, higher-order components --
+ultimately leads to lower complexity.
+As an added bonus: testing strategies are also broken up among the different layers which provides more descriptive coverage.
 
 Overall, these design principles can be applied to any powerful programming framework.
 Despite this article being geared towards a React and Redux stack, this also works in a Backbone and Marionette stack.
 The abstract idea of composing new components is a worthwhile and powerful technique.
 Whether composition is applied via arguments or wrappers, separating the concerns ultimately alleviates the classical growing pains of a codebase and facilitates the introduction to new contributors.
 These conceptual models are useful in any environment: backend systems can also benefit from such separation of concerns -- well-tested core classes, extensible core components, minimal memory usage, etc.
-
-
-
-~~Random~~
-
-To summarize:
-
-- A stateless presentational component is driven by `props`
-- A stateful higher-ordered component is driven by `this.state`
-- A stateful connected component is driven by a redux `store`
