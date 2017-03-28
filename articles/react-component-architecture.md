@@ -2,9 +2,9 @@
 
 User interfaces (and their implementation) have the potential to explode in complexity.
 As a guided example, this article will focus on developing a UI component and the different approaches to separating responsibilities.
-The purpose of this article is introducing different component architecture and their respective testing strategies
+The purpose of this article is introducing component architectural patterns and their respective testing strategies
 by developing a simple, extensible, and useful UI component.
-Overall, standardizing design patterns to reduce complexity.
+This showcases the advantages of using standardized design patterns to reduce complexity.
 
 A basic and widely used component within any application is a text field.
 This article will start with the presentational model of a text field;
@@ -15,10 +15,9 @@ and, finally, populate the component from stored database values.
 
 ### Audience Advisory
 
-As a disclaimer, it is assumed the reader has some experience with the React and Redux libraries:
+As a disclaimer, it is assumed you have some experience with the React and Redux libraries and have:
 
-- JSX
-- `props` nomenclature
+- used JSX
 - written some components
 - written some components which use internal state
 - written some components which use redux store state
@@ -35,14 +34,14 @@ Stateless components are the WYSIWYG building blocks of React.
 
 A stateless presentational component is entirely derived from the `props` passed into it.
 Given the simplicity of this data flow, it is guaranteed that all other UI components will be unaffected by the inclusion of a presentational component.
-Note: there are usages of using some state in a presentational component (e.g. managing unique `htmlFor` attributes) but, for the purposes of article, let's focus on a functional component example.
+Note: there are some uses for state in a presentational component (e.g. managing unique `htmlFor` attributes) but, for the purposes of article, let's focus on a functional component example.
 
 Let's consider a text field component with two basic requirements:
 
 1. A label
 2. An input field
 
-In HTML markup, it is straightforward. In JSX markup, it is straightforward as well.
+In JSX markup, it is as straightforward as HTML markup:
 
 ```javascript
 function PresentationalTextField (props) {
@@ -64,23 +63,22 @@ In the case of the `PresentationalTextField`:
 - it displays some value in an input (i.e. `props.value`)
 - it interfaces the interactive element with parent components (i.e. `props.onChange`)
 
-While the `onChange` prop is not directly displaying some content, it is indirectly responsible for managing the content of an element.
+While the `onChange` prop is not directly displaying some content, it may be indirectly responsible for managing the content of an element.
 
 #### Why?
 
 Using functional presentational components provides two benefits:
 
 1. Manage the presentational layer with single responsibility components.
-1. Functional components are lightweight and fast: there is no inheritance of `React.Component` and its lifecycle.
-This is analogous to writing a vanilla JavaScript element.
+1. Functional components are lightweight and fast:
+there is no inheritance of `React.Component` and its lifecycle but it still uses the virtual DOM.
 
 #### How?
 
-Designing a useful presentational component is designing a robust **properties interface**.
-Given the responsibilities of displaying content,
-a presentational component is only useful when it is usable in a variety of contexts
-(i.e. its `props` should be robust enough to be flexible in many contexts).
-This requires some forethought and openness to restructuring an existing interface in order to better describe a component based on its `props`.
+Designing a useful presentational component requires designing a robust **properties interface**.
+A component's properties interface is made up of its `props`, `propTypes`, and `defaultProps`.
+A presentational component is useful when it is usable in a variety of contexts.
+This requires some forethought and openness to restructuring an existing interface in order to better describe a component based on its properties interface.
 
 For a given presentational component, most `props` will serve as text and property values to other elements
 while some will be used as event handlers on interactive elements.
@@ -109,8 +107,7 @@ And, the input value is another string.
 
 ##### Default properties
 
-In addition, default values should be specified for optional properties --
-which are all other properties which are not required.
+In addition, default values should be specified for optional properties (e.g. `labelText`, and `value`).
 Whenever a property is being interpolated into an expression, a default value is better than an `undefined` value because `undefined` serializes to "undefined".
 
 ```javascript
@@ -128,13 +125,13 @@ The testing strategy is straightforward because presentational components are en
 1. For varying required `props`, the component renders with varying markup.
 1. Event handlers are invoked on simulated DOM events.
 
-### Decorated Presentational Component
+### Decorations: Composed Presentational Component
 
 #### What?
 
-Decorating presentational components is an approach in designing a properties interface which allows other components as values.
+Decorating presentational components is an approach in designing a properties interface which allows nested components.
 
-Let's suppose a couple of new requirement on the original text field:
+Let's suppose a couple of new requirements on the original text field:
 
 1. A currency symbol to the left of the input
 1. A button to the right of the input
@@ -168,8 +165,8 @@ Note: a string value is actually considered as a text node.
 
 #### When?
 
-The sole responsibility of decorations on a presentational component is to facilitate complex user interfaces.
-This is useful when complex user interfaces can be **composed** of many simple and robust components.
+The sole responsibility of decorations on a presentational component is to facilitate intricate user interfaces.
+This is useful when a user interface can be **composed** of many simple and robust components.
 
 #### Why?
 
@@ -219,7 +216,7 @@ an additional decoration implies another conditional.
 These conditionals lead to cluttered source code and a higher cyclomatic complexity.
 This obfuscates the original purpose of the component.
 
-Instead, using decorations as a means of defining complex user interfaces is an approach which separates the concerns of components among many.
+Instead, using decorations as a means of defining intricate user interfaces is an approach which separates the concerns of components among many.
 The resulting `PresentationalTextField` component is more versatile and straightforward:
 it solves the normalization problem and lowers cyclomatic complexity.
 
@@ -506,11 +503,14 @@ const ServerTextField = connect(
 )(ConnectedTextField);
 ```
 
-Utilizing the React component lifecycle method `componentWillMount`, fetching data from the server is straightforward:
+The above example brings all these layers together to output a component with specific behavior:
 
-1. Fetch an endpoint
-1. Parse the response
-1. Dispatch the new input value (with the same code from `ConnectedTextField`).
+1. `ConnectedTextField` is an existing connected component which populates a `TextField` from store state
+1. `FetchTextField` provides a simple `componentWillMount` lifecycle method
+1. `ServerTextField` provides data fetching logic (which is connected to the store) as `props.fetchServerData`
+  a. Fetch an endpoint
+  a. Parse the response
+  a. Dispatch the new input value (with the same code from `ConnectedTextField`).
 
 
 ## Conclusion
@@ -519,12 +519,12 @@ Utilizing the React component lifecycle method `componentWillMount`, fetching da
 - A stateful higher-ordered component is driven by `this.state`
 - A stateful connected component is driven by a redux `store`
 
-Designing a useful component is easily achievable with carefully designed properties interfaces.
+Designing a useful component is achievable with carefully designed properties interfaces.
 Given the possibilities of composing new components, intricate user interfaces are achievable and scalable.
 Taking advantage of the many different layers of responsibilities --
 presentational, decorations, higher-order components --
 ultimately leads to lower complexity.
-As an added bonus: testing strategies are also broken up among the different layers which provides more descriptive coverage.
+As an added bonus: testing strategies are also broken up among the different layers which provides more descriptive coverage (without hindering possible integration tests).
 
 Overall, these design principles can be applied to any powerful programming framework.
 Despite this article being geared towards a React and Redux stack, this also works in a Backbone and Marionette stack.
