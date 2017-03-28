@@ -185,8 +185,8 @@ function PresentationalMoneyTextField (props) {
 }
 ```
 
-For the purposes of the requirements, this is a complete solution -- albeit a good one.
-This is not a scalable approach as it takes a lot of manual effort to normalize all components (i.e. changes to either component will require changes to the other component).
+This is not a scalable approach as it takes a lot of manual effort to normalize all components
+(i.e. changes to either component will require changes to the other component).
 Each additional component just increases the on-boarding process for a contributor.
 
 Another naive approach is configurable functionality with the original `PresentationalTextField` source:
@@ -281,7 +281,6 @@ class BehavioralTextField extends React.Component {
 }
 ```
 
-For the purpose of the requirements, this is a complete solution (albeit a good one).
 The component stores the input value in `this.state.value` and uses it to populate the value property of the input.
 The value is updated on `change` events (from the input element) via the `setState` asynchronous setter method.
 And the presentational model is also implemented.
@@ -349,7 +348,6 @@ function HigherOrderComponent(Component) {
 }
 ```
 
-For the purpose of the requirements, this is a complete solution.
 This `HigherOrderComponent` is a factory which takes any kind of component and returns a different component.
 The outputted component has the sole responsibility of remembering some value via `onChange` and `value` properties.
 The component stores the input value in `this.state.value` and uses it to populate the value property of the input.
@@ -429,7 +427,6 @@ const ConnectedTextField = connect(
 )(PresentationalTextField);
 ```
 
-For the purpose of the requirements, this is a complete solution.
 The higher-order `connect` component is a factory which takes any kind of component, some functions, and returns a different component (in this case, `ConnectedTextField`).
 The outputted `ConnectedTextField` component has the sole responsibility of allowing reading and writing to the store via the `onChange` and `value` properties:
 the input value is shareable via the store's `state.textField.value` reference;
