@@ -213,7 +213,7 @@ function ConfiguredMoneyTextField (props) {
 Although configurable components eases normalization problems,
 this approach introduces a new problem:
 an additional decoration implies another conditional.
-These conditionals lead to cluttered source code and a higher cyclomatic complexity.
+These conditionals lead to cluttered source code and a higher [cyclomatic complexity](https://en.wikipedia.org/wiki/Cyclomatic_complexity).
 This obfuscates the original purpose of the component.
 
 Instead, using decorations as a means of defining intricate user interfaces is an approach which separates the concerns of components among many.
