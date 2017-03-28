@@ -17,9 +17,9 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-const ServerTextField = connect(
+const ConnectedTextField = connect(
   mapStateToProps,
   mapDispatchToProps
 )(TextField);
 
-export default ServerTextField;
+export default ConnectedTextField;

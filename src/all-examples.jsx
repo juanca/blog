@@ -7,13 +7,9 @@ import RememberValueHigherOrderComponent from './higher-order-component-remember
 const RememberedTextField = RememberValueHigherOrderComponent(PresentationalTextField);
 const RememberedMoneyTextField = RememberValueHigherOrderComponent(CompositionalMoneyTextField);
 
-import ContainerTextField from './container-text-field.js';
+import ServerTextField from './server-text-field.jsx';
 
 export default class AllExamples extends React.Component {
-  componentWillMount() {
-    this.props.fetchServerData();
-  }
-
   render() {
     return (
       <div>
@@ -39,7 +35,7 @@ export default class AllExamples extends React.Component {
 
         <fieldset>
           <legend>[Connected Component] Stateful Text Field</legend>
-          <ContainerTextField />
+          <ServerTextField />
         </fieldset>
       </div>
     );
