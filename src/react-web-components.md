@@ -90,6 +90,7 @@ funcion List(props) {
 const ListItem = forwardRef(function ListItem(props, ref) {
   const [active, setActive] = useState(props.defaultActive);
   const [focusQueued, setFocusQueued] = useState(false);
+  const nodeRef = useRef();
 
   useImperativeHandle(ref, () => {
     getter active() {
@@ -103,12 +104,12 @@ const ListItem = forwardRef(function ListItem(props, ref) {
 
   useEffect(() => {
     if (focusQueued) {
-      rootRef.current.focus();
+      nodeRef.current.focus();
     }
   });
 
   return (
-    <li tabIndex={active ? "0" : "-1"}>
+    <li ref={nodeRef} tabIndex={active ? "0" : "-1"}>
       {props.children}
     </li>
   );
@@ -130,23 +131,24 @@ const refs = items.map(() => createRef());
 
 - Do not call `onChange` as direct responses to native DOM events (e.g. `click`)
 - Consume native DOM events by setting component state (`click` -> `setValue`)
-- Call `onChange` API when actual value state changes (and expose event-like actual parameter)
+- Call `onChange` API when actual value state changes (and expose event-like parameter)
 - Keep track of mounted state to avoid calling `onChange` on mount (`undefined` -> `props.value`)
 
 ```jsx
-const [didMount, setDidMount] = useState(false);
+const Select = forwardRef(function Select(props, ref) {
+  const [didMount, setDidMount] = useState(false);
+  const [value, setValue] = useState(props.value);
 
-useEffect(() => {
-  setDidMount(true)
-}, []);
-```
+  useEffect(() => {
+    setDidMount(true)
+  }, []);
 
-```jsx
-const [value, setValue] = useState(props.value);
+  useEffect(() => {
+    if (!didMount) return;
 
-useEffect(() => {
-  if (!didMount) return;
+    props.onChange({ target: ref.current });
+  }, [value]);
 
-  props.onChange({ target: ref.current });
-}, [value]);
+  return ( ... );
+});
 ```
