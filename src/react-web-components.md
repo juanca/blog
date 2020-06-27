@@ -6,7 +6,7 @@ This is a higly opinionated perspective on a React architecture:
 1. Create highly composable components
 1. Create web components
 
-### Expose DOM-like ref
+## Expose DOM-like ref
 
 - Do not expect everyone to use `ref`
 - Expose (getter) state values through `useImperativeHandle`
@@ -126,7 +126,7 @@ const refs = items.map(() => createRef());
 </List>
 ```
 
-### Expose native-like event handlers: e.g. `onChange` API
+## Expose native-like event handlers: e.g. `onChange` API
 
 - Do not call `onChange` as direct responses to native DOM events (e.g. `click`)
 - Consume native DOM events by setting component state (`click` -> `setValue`)
